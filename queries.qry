@@ -1,0 +1,40 @@
+
+query selectGoods {
+  description: "Select all goods"
+  statement:
+      SELECT org.market.biznet.Good
+}
+
+query selectSellerGoodsInStock {
+  description: "Select all goods that are in stock by seller"
+  statement:
+      SELECT org.market.biznet.Good
+          WHERE (owner == _$seller AND state == 'IN_STOCK')
+}
+
+query selectSalesAgreements{
+  description: "Select all sales agreements"
+  statement:
+      SELECT org.market.biznet.SalesAgreement
+}
+
+query selectWaitingAcceptSalesAgreements{
+  description: "Select all sales agreements that are waiting acceptance by seller"
+  statement:
+      SELECT org.market.biznet.SalesAgreement
+          WHERE (state == 'WAITING_ACCEPT')
+}
+
+query selectWaitingValidatealesAgreements{
+  description: "Select all sales agreements that are waiting validation by bank"
+  statement:
+      SELECT org.market.biznet.SalesAgreement
+          WHERE (state == 'WAITING_VALIDATE')
+}
+
+query selectSellerGoodsSold {
+  description: "Select all validated sales agreements by seller"
+  statement:
+      SELECT org.market.biznet.SalesAgreement
+          WHERE (seller == _$seller AND state == 'VALID')
+}

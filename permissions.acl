@@ -1,0 +1,239 @@
+/**
+ * Access Control List for the market network.
+ */
+rule NetworkAdminUser {
+    description: "Grant business network administrators full access to user resources"
+    participant: "org.hyperledger.composer.system.NetworkAdmin"
+    operation: ALL
+    resource: "**"
+    action: ALLOW
+}
+
+rule NetworkAdminSystem {
+    description: "Grant business network administrators full access to system resources"
+    participant: "org.hyperledger.composer.system.NetworkAdmin"
+    operation: ALL
+    resource: "org.hyperledger.composer.system.**"
+    action: ALLOW
+}
+
+rule ParticipantSystem {
+    description: "System ACL to permit all access for participants"
+    participant: "org.hyperledger.composer.system.Participant"
+    operation: ALL
+    resource: "org.hyperledger.composer.system.**"
+    action: ALLOW
+}
+
+/**
+ * Rules for Participant registry access
+ */
+rule BANK_U_BANK_OWN {
+    description: "Allow the Bank update access on himself"
+    participant(m): "org.market.biznet.Bank"
+    operation: ALL
+    resource(v): "org.market.biznet.Bank"
+    condition: (v.getIdentifier() == m.getIdentifier())
+    action: ALLOW
+}
+
+rule BANK_R_BANK {
+    description: "Allow the bank read access on banks"
+    participant: "org.market.biznet.Bank"
+    operation: READ, UPDATE
+    resource: "org.market.biznet.Bank"
+    action: ALLOW
+}
+
+rule BANK_R_TRADER {
+    description: "Allow the bank read access on traders"
+    participant: "org.market.biznet.Bank"
+    operation: READ
+    resource: "org.market.biznet.Trader"
+    action: ALLOW
+}
+
+rule TRADER_U_TRADER_OWN {
+    description: "Allow the trader update access on himself"
+    participant(m): "org.market.biznet.Trader"
+    operation: ALL
+    resource(v): "org.market.biznet.Trader"
+    condition: (v.getIdentifier() == m.getIdentifier())
+    action: ALLOW
+}
+
+rule TRADER_R_TRADER {
+    description: "Allow the trader read access on other traders"
+    participant: "org.market.biznet.Trader"
+    operation: READ
+    resource: "org.market.biznet.Trader"
+    action: ALLOW
+}
+
+/**
+ * Rules for Asset registry access
+ */
+rule BANK_R_ACCOUNT {
+    description: "Allow the bank read access on all accounts"
+    participant: "org.market.biznet.Bank"
+    operation: READ
+    resource: "org.market.biznet.Account"
+    action: ALLOW
+}
+
+rule TRADER_R_ACCOUNT_OWN {
+    description: "Allow the trader read access on own account"
+    participant(m): "org.market.biznet.Trader"
+    operation: READ
+    resource(v): "org.market.biznet.Account"
+    condition: (v.owner.getIdentifier() == m.getIdentifier())
+    action: ALLOW
+}
+
+rule BANK_R_GOODS_ONHOLD {
+    description: "Allow the bank read access on goods on hold"
+    participant: "org.market.biznet.Bank"
+    operation: READ
+    resource(v): "org.market.biznet.Good"
+    condition: (v.state == 'ON_HOLD')
+    action: ALLOW
+}
+
+rule TRADER_UD_GOODS_OWN_EXCEPT_ONHOLD {
+    description: "Allow the trader update & delete access on own goods except holded"
+    participant(m): "org.market.biznet.Trader"
+    operation: UPDATE, DELETE
+    resource(v): "org.market.biznet.Good"
+    condition: (v.owner.getIdentifier() == m.getIdentifier() && v.state != 'ON_HOLD')
+    action: ALLOW
+}
+
+rule TRADER_R_GOODS_OWN {
+    description: "Allow the trader read access on own goods"
+    participant(m): "org.market.biznet.Trader"
+    operation: READ
+    resource(v): "org.market.biznet.Good"
+    condition: (v.owner.getIdentifier() == m.getIdentifier())
+    action: ALLOW
+}
+
+rule TRADER_R_GOODS_INSTOCK {
+    description: "Allow the trader read access on any other traders' goods in stock"
+    participant(m): "org.market.biznet.Trader"
+    operation: READ
+    resource(v): "org.market.biznet.Good"
+    condition: (v.state == 'IN_STOCK')
+    action: ALLOW
+}
+
+rule BANK_R_AGREEMENT {
+    description: "Allow the bank read access on all sales agreements"
+    participant: "org.market.biznet.Bank"
+    operation: READ
+    resource: "org.market.biznet.SalesAgreement"
+    action: ALLOW
+}
+
+rule TRADER_R_AGREEMENT_OWN {
+    description: "Allow the trader read access on all his sales agreements"
+    participant(m): "org.market.biznet.Trader"
+    operation: READ
+    resource(v): "org.market.biznet.SalesAgreement"
+    condition: (v.seller.getIdentifier() == m.getIdentifier() || v.buyer.getIdentifier() == m.getIdentifier())
+    action: ALLOW
+}
+
+/**
+ * Rules for Asset registry access on Transaction invocations
+ */
+rule TRADER_U_GOOD_IN_STOCK_ON_TRANSACTION {
+    description: "Allow the trader update access on goods in stock on PlaceOrder transaction"
+    participant: "org.market.biznet.Trader"
+    operation: UPDATE
+    resource: "org.market.biznet.Good"
+    transaction: "org.market.biznet.PlaceOrder"
+    action: ALLOW
+}
+
+rule TRADER_C_AGREEMENT_ON_TRANSACTION {
+    description: "Allow the trader create access on sales agreements on PlaceOrder transaction"
+    participant: "org.market.biznet.Trader"
+    operation: CREATE
+    resource: "org.market.biznet.SalesAgreement"
+    transaction: "org.market.biznet.PlaceOrder"
+    action: ALLOW
+}
+
+rule TRADER_U_AGREEMENT_ON_TRANSACTION {
+    description: "Allow the trader update access on sales agreements on AcceptOrder transaction"
+    participant: "org.market.biznet.Trader"
+    operation: UPDATE
+    resource: "org.market.biznet.SalesAgreement"
+    transaction: "org.market.biznet.AcceptOrder"
+    action: ALLOW
+}
+
+rule BANK_U_GOOD_ON_TRANSACTION {
+    description: "Allow the bank update access on goods on ValidateOrder transaction"
+    participant: "org.market.biznet.Bank"
+    operation: UPDATE
+    resource: "org.market.biznet.Good"
+    transaction: "org.market.biznet.ValidateOrder"
+    action: ALLOW
+}
+
+rule BANK_U_ACCOUNT_ON_TRANSACTION {
+    description: "Allow the bank update access on accounts on ValidateOrder transaction"
+    participant: "org.market.biznet.Bank"
+    operation: UPDATE
+    resource: "org.market.biznet.Account"
+    transaction: "org.market.biznet.ValidateOrder"
+    action: ALLOW
+}
+
+rule BANK_U_AGREEMENT_ON_TRANSACTION {
+    description: "Allow the bank update access on sales agreements on ValidateOrder transaction"
+    participant: "org.market.biznet.Bank"
+    operation: UPDATE
+    resource: "org.market.biznet.SalesAgreement"
+    transaction: "org.market.biznet.ValidateOrder"
+    action: ALLOW
+}
+
+/**
+ * Rules for Transaction invocations
+ */
+rule TRADER_C_PLACEORDER {
+    description: "Grant Traders access to invoke PlaceOrder transaction"
+    participant: "org.market.biznet.Trader"
+    operation: CREATE
+    resource: "org.market.biznet.PlaceOrder"
+    action: ALLOW
+}
+
+rule TRADER_C_ACCEPTORDER {
+    description: "Grant Traders access to invoke AcceptOrder transaction"
+    participant: "org.market.biznet.Trader"
+    operation: CREATE
+    resource: "org.market.biznet.AcceptOrder"
+    action: ALLOW
+}
+
+rule BANK_C_VALIDATEORDER {
+    description: "Grant Bank access to invoke ValidateOrder transaction"
+    participant: "org.market.biznet.Bank"
+    operation: CREATE
+    resource: "org.market.biznet.ValidateOrder"
+    action: ALLOW
+}
+
+/**
+ * Anything not explicitly specified gets locked down (looks like unnecessary).
+ */
+rule DENY_REMAINING {
+    description: "Deny all participants access to all resources"
+    participant: "ANY"
+    operation: ALL
+    resource: "org.market.biznet.*"
+    action: DENY
+}

@@ -1,0 +1,71 @@
+/**
+ * Write your model definitions here
+ */
+
+namespace org.market.biznet
+
+abstract participant Organization identified by BIN {
+  o String BIN
+  o String name
+}
+
+participant Trader extends Organization {
+}
+
+participant Bank extends Organization {
+  o String BIK
+}
+
+asset Account identified by IBAN {
+  o String IBAN
+  --> Trader owner
+  o Double balance
+}
+
+enum GoodState {
+  o IN_STOCK
+  o ON_HOLD
+  o IN_PROPERTY
+}
+
+enum AgreementState {
+  o WAITING_ACCEPT
+  o WAITING_VALIDATE
+  o VALID
+  o INVALID
+}
+
+asset Good identified by goodId {
+  o String goodId
+  o String name
+  o Double price
+  --> Trader owner
+  o GoodState state
+}
+
+asset SalesAgreement identified by salesId {
+  o String salesId
+  --> Trader buyer
+  --> Account buyerAccount
+  --> Account sellerAccount optional
+  --> Trader seller
+  --> Good good
+  o AgreementState state default = 'WAITING_ACCEPT'
+}
+
+transaction PlaceOrder {
+  --> Good good
+  --> Account buyerAccount
+}
+
+transaction AcceptOrder {
+  --> SalesAgreement agreement
+  --> Account sellerAccount
+}
+
+transaction ValidateOrder {
+  --> SalesAgreement agreement
+}
+
+transaction SetupDemo {
+}
