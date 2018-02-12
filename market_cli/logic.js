@@ -44,7 +44,7 @@ class MarketNetwork {
 
             let card, cert, cardname;
             let certFound = false;
-            
+
             for (let curCardName of cards.keys()) {
                 card = await adminConnection.exportCard(curCardName);
                 cert = await card.getCredentials().certificate.toString();
@@ -58,9 +58,9 @@ class MarketNetwork {
             }
 
             if (!certFound) {
-                throw new Error('MarketNetwork:', 'Login failed.', 'No participant matching provided certificate!');
+                throw new Error('MarketNetwork: Login failed. No participant matching provided certificate!');
             }
-            
+
             this.businessNetworkDefinition = await this.bizNetworkConnection.connect(cardname);
 
             LOG.info('MarketNetwork:', 'businessNetworkDefinition obtained', this.businessNetworkDefinition.getIdentifier());
