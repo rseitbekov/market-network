@@ -1,18 +1,35 @@
 {
-  "name": "market-network",
-  "version": "0.0.1",
-  "description": "some market",
+  "name": "market",
+  "description": "command line application for market network",
+  "version": "0.9.3",
+  "main": "index.js",
+  "author": {
+    "name": "roos"
+  },
+  "licenses": [
+    {
+      "type": "MIT"
+    }
+  ],
+  "preferGlobal": true,
+  "bin": {
+    "market": "index.js"
+  },
+  "engines": {
+    "node": ">= 0.8.0"
+  },
   "scripts": {
     "test": "mocha --recursive"
   },
-  "author": "r.seitbekov",
-  "email": "r.seitbekov@p-s.kz",
-  "license": "Apache-2.0",
   "devDependencies": {
     "composer-admin": "latest",
     "composer-client": "latest",
     "composer-common": "latest",
     "composer-connector-embedded": "latest",
+    "chalk": "latest",
+    "cli-table": "latest",
+    "vorpal": "latest",
+    "winston": "latest",
     "chai": "latest",
     "eslint": "latest",
     "istanbul": "latest",
