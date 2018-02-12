@@ -12,3 +12,8 @@ composer identity issue -c admin@market-network -f trader2.card -u trader2 -a "r
 composer card import -f bank.card -n bank@market-network
 composer card import -f trader1.card -n trader1@market-network
 composer card import -f trader2.card -n trader2@market-network
+
+# initiate first use of identity to generate certificates
+composer network ping -c bank@market-network
+composer network ping -c trader1@market-network
+composer network ping -c trader2@market-network

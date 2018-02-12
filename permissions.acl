@@ -19,12 +19,11 @@ rule NetworkAdminSystem {
 
 rule ParticipantSystem {
     description: "System ACL to permit all access for participants"
-    participant: "org.hyperledger.composer.system.Participant"
+    participant: "org.market.biznet.*"
     operation: ALL
     resource: "org.hyperledger.composer.system.**"
     action: ALLOW
 }
-
 /**
  * Rules for Participant registry access
  */
@@ -33,7 +32,7 @@ rule BANK_U_BANK_OWN {
     participant(m): "org.market.biznet.Bank"
     operation: ALL
     resource(v): "org.market.biznet.Bank"
-    condition: (v.getIdentifier() == m.getIdentifier())
+    condition: (v.getIdentifier() === m.getIdentifier())
     action: ALLOW
 }
 
@@ -58,7 +57,7 @@ rule TRADER_U_TRADER_OWN {
     participant(m): "org.market.biznet.Trader"
     operation: ALL
     resource(v): "org.market.biznet.Trader"
-    condition: (v.getIdentifier() == m.getIdentifier())
+    condition: (v.getIdentifier() === m.getIdentifier())
     action: ALLOW
 }
 
@@ -86,7 +85,7 @@ rule TRADER_R_ACCOUNT_OWN {
     participant(m): "org.market.biznet.Trader"
     operation: READ
     resource(v): "org.market.biznet.Account"
-    condition: (v.owner.getIdentifier() == m.getIdentifier())
+    condition: (v.owner.getIdentifier() === m.getIdentifier())
     action: ALLOW
 }
 
@@ -95,16 +94,16 @@ rule BANK_R_GOODS_ONHOLD {
     participant: "org.market.biznet.Bank"
     operation: READ
     resource(v): "org.market.biznet.Good"
-    condition: (v.state == 'ON_HOLD')
+    condition: (v.state === 'ON_HOLD')
     action: ALLOW
 }
 
-rule TRADER_UD_GOODS_OWN_EXCEPT_ONHOLD {
+rule TRADER_UD_GOODS_OWN_INSTOCK {
     description: "Allow the trader update & delete access on own goods except holded"
     participant(m): "org.market.biznet.Trader"
     operation: UPDATE, DELETE
     resource(v): "org.market.biznet.Good"
-    condition: (v.owner.getIdentifier() == m.getIdentifier() && v.state != 'ON_HOLD')
+    condition: (v.owner.getIdentifier() === m.getIdentifier() && v.state === 'IN_STOCK')
     action: ALLOW
 }
 
@@ -113,7 +112,7 @@ rule TRADER_R_GOODS_OWN {
     participant(m): "org.market.biznet.Trader"
     operation: READ
     resource(v): "org.market.biznet.Good"
-    condition: (v.owner.getIdentifier() == m.getIdentifier())
+    condition: (v.owner.getIdentifier() === m.getIdentifier())
     action: ALLOW
 }
 
@@ -122,7 +121,7 @@ rule TRADER_R_GOODS_INSTOCK {
     participant(m): "org.market.biznet.Trader"
     operation: READ
     resource(v): "org.market.biznet.Good"
-    condition: (v.state == 'IN_STOCK')
+    condition: (v.state === 'IN_STOCK')
     action: ALLOW
 }
 
@@ -139,13 +138,31 @@ rule TRADER_R_AGREEMENT_OWN {
     participant(m): "org.market.biznet.Trader"
     operation: READ
     resource(v): "org.market.biznet.SalesAgreement"
-    condition: (v.seller.getIdentifier() == m.getIdentifier() || v.buyer.getIdentifier() == m.getIdentifier())
+    condition: (v.seller.getIdentifier() === m.getIdentifier() || v.buyer.getIdentifier() === m.getIdentifier())
     action: ALLOW
 }
 
 /**
  * Rules for Asset registry access on Transaction invocations
  */
+rule TRADER_C_GOOD {
+    description: "Allow the trader create new goods on AddGood transaction"
+    participant: "org.market.biznet.Trader"
+    operation: CREATE
+    resource: "org.market.biznet.Good"
+    transaction: "org.market.biznet.AddGood"
+    action: ALLOW
+}
+
+rule TRADER_D_GOOD {
+    description: "Allow the trader delete goods on RemoveGood transaction"
+    participant: "org.market.biznet.Trader"
+    operation: DELETE
+    resource: "org.market.biznet.Good"
+    transaction: "org.market.biznet.RemoveGood"
+    action: ALLOW
+}
+
 rule TRADER_U_GOOD_IN_STOCK_ON_TRANSACTION {
     description: "Allow the trader update access on goods in stock on PlaceOrder transaction"
     participant: "org.market.biznet.Trader"
@@ -203,6 +220,22 @@ rule BANK_U_AGREEMENT_ON_TRANSACTION {
 /**
  * Rules for Transaction invocations
  */
+ rule TRADER_C_ADDGOOD {
+    description: "Grant Traders access to invoke AddGood transaction"
+    participant: "org.market.biznet.Trader"
+    operation: CREATE
+    resource: "org.market.biznet.AddGood"
+    action: ALLOW
+}
+
+rule TRADER_C_REMOVEGOOD {
+    description: "Grant Traders access to invoke RemoveGood transaction"
+    participant: "org.market.biznet.Trader"
+    operation: CREATE
+    resource: "org.market.biznet.RemoveGood"
+    action: ALLOW
+}
+
 rule TRADER_C_PLACEORDER {
     description: "Grant Traders access to invoke PlaceOrder transaction"
     participant: "org.market.biznet.Trader"
@@ -228,7 +261,7 @@ rule BANK_C_VALIDATEORDER {
 }
 
 /**
- * Anything not explicitly specified gets locked down (looks like unnecessary).
+ * Anything not explicitly specified gets locked down.
  */
 rule DENY_REMAINING {
     description: "Deny all participants access to all resources"

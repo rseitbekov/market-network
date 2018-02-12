@@ -1,7 +1,3 @@
-/**
- * Write your model definitions here
- */
-
 namespace org.market.biznet
 
 abstract participant Organization identified by BIN {
@@ -51,6 +47,15 @@ asset SalesAgreement identified by salesId {
   --> Trader seller
   --> Good good
   o AgreementState state default = 'WAITING_ACCEPT'
+}
+
+transaction AddGood {
+  o String name
+  o Double price
+}
+
+transaction RemoveGood {
+  --> Good good
 }
 
 transaction PlaceOrder {

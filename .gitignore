@@ -1,6 +1,9 @@
 #Logs
 composer-logs
 
+# Node modules
+node_modules/
+
 #Cards
 *.card
 
